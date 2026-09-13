@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.venv/
+venv/
+env/
+
+# Environment variables
+.env
+.env.*
+
+# Frontend dependencies
+Frontend/node_modules/
+
+# Frontend build
+Frontend/dist/
+
+# IDE
+.vscode/
+.idea/
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+
+# Python cache
+.pytest_cache/
+
+# Temporary files
+*.tmp

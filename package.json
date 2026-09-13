@@ -1,0 +1,10 @@
+{
+  "name": "cosmiq",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --dir Frontend dev",
+    "build": "pnpm --dir Frontend build",
+    "preview": "pnpm --dir Frontend preview"
+  }
+}

@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CosmicQ — AI Astronomy & Deep Space Knowledge</title>
+  <meta name="description" content="Explore galaxies, black holes, exoplanets, and astrophysics research papers with CosmicQ AI." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-primary: #050711;
+      --bg-surface: rgba(18, 22, 40, 0.7);
+      --bg-glass: rgba(25, 30, 56, 0.55);
+      --border-glass: rgba(80, 120, 240, 0.18);
+      --border-glow: rgba(99, 102, 241, 0.35);
+      --accent-cyan: #38bdf8;
+      --accent-indigo: #6366f1;
+      --accent-violet: #a855f7;
+      --accent-nebula: linear-gradient(135deg, #38bdf8 0%, #6366f1 50%, #d946ef 100%);
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --bubble-user: linear-gradient(135deg, #4f46e5 0%, #2563eb 100%);
+      --bubble-bot: rgba(22, 27, 46, 0.85);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(99, 102, 241, 0.4) transparent;
+    }
+
+    *::-webkit-scrollbar {
+      width: 6px;
+    }
+    *::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    *::-webkit-scrollbar-thumb {
+      background: rgba(99, 102, 241, 0.3);
+      border-radius: 99px;
+    }
+    *::-webkit-scrollbar-thumb:hover {
+      background: rgba(99, 102, 241, 0.6);
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Cosmic Particle & Glow Background */
+    #stars-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .ambient-glow-1 {
+      position: fixed;
+      width: 550px;
+      height: 550px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(56, 189, 248, 0.04) 50%, transparent 70%);
+      top: -150px;
+      left: -150px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+      animation: floatGlow 18s ease-in-out infinite alternate;
+    }
+
+    .ambient-glow-2 {
+      position: fixed;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(217, 70, 239, 0.12) 0%, rgba(99, 102, 241, 0.03) 50%, transparent 70%);
+      bottom: -200px;
+      right: -150px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+      animation: floatGlow 22s ease-in-out infinite alternate-reverse;
+    }
+
+    @keyframes floatGlow {
+      0% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(60px, 40px) scale(1.1); }
+      100% { transform: translate(-40px, 60px) scale(0.95); }
+    }
+
+    /* Top Navigation Header */
+    header {
+      width: 100%;
+      max-width: 1140px;
+      padding: 18px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 10;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: default;
+    }
+
+    .logo-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: var(--accent-nebula);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+      font-size: 22px;
+      transform: rotate(-3deg);
+      transition: transform 0.3s ease;
+    }
+
+    .logo-container:hover .logo-badge {
+      transform: rotate(5deg) scale(1.05);
+    }
+
+    .logo-text h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: var(--accent-nebula);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .logo-text span {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+      display: block;
+      font-weight: 500;
+      margin-top: -2px;
+    }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-glass);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-glass);
+      padding: 6px 14px;
+      border-radius: 99px;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 10px #10b981;
+      animation: pulseDot 2s infinite;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
+
+    /* Main Container */
+    main {
+      width: 92%;
+      max-width: 1040px;
+      height: calc(100vh - 170px);
+      min-height: 520px;
+      background: var(--bg-surface);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-glass);
+      border-radius: 20px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 40px rgba(99, 102, 241, 0.06);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      z-index: 10;
+      overflow: hidden;
+    }
+
+    /* Suggestion Chips */
+    .chips-bar {
+      padding: 12px 20px 0 20px;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      white-space: nowrap;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      padding-bottom: 12px;
+    }
+
+    .chip-btn {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #cbd5e1;
+      padding: 6px 14px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-family: 'Outfit', sans-serif;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.25s ease;
+    }
+
+    .chip-btn:hover {
+      background: rgba(99, 102, 241, 0.2);
+      border-color: var(--border-glow);
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    /* Chat Messages View */
+    .chat-messages {
+      flex: 1;
+      padding: 24px 28px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Welcome / Hero State */
+    .welcome-hero {
+      margin: auto;
+      text-align: center;
+      max-width: 540px;
+      padding: 20px;
+      animation: fadeIn 0.6s ease;
+    }
+
+    .welcome-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+      display: inline-block;
+      filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.6));
+      animation: floatHero 4s ease-in-out infinite alternate;
+    }
+
+    @keyframes floatHero {
+      0% { transform: translateY(0px) rotate(0deg); }
+      100% { transform: translateY(-8px) rotate(4deg); }
+    }
+
+    .welcome-hero h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+
+    .welcome-hero p {
+      color: var(--text-muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* Message Bubbles */
+    .message-row {
+      display: flex;
+      gap: 14px;
+      width: 100%;
+      animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .message-row.user-row {
+      justify-content: flex-end;
+    }
+
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .bot-avatar {
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+      border: 1px solid var(--border-glow);
+      box-shadow: 0 0 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .user-avatar {
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+    }
+
+    .bubble-wrapper {
+      max-width: 80%;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .user-row .bubble-wrapper {
+      align-items: flex-end;
+    }
+
+    .bubble {
+      padding: 14px 18px;
+      border-radius: 16px;
+      font-size: 15px;
+      line-height: 1.65;
+      position: relative;
+      word-break: break-word;
+    }
+
+    .bot-bubble {
+      background: var(--bubble-bot);
+      border: 1px solid var(--border-glass);
+      color: #e2e8f0;
+      border-top-left-radius: 4px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .user-bubble {
+      background: var(--bubble-user);
+      color: #ffffff;
+      border-top-right-radius: 4px;
+      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.35);
+    }
+
+    .clarification-tag {
+      display: inline-block;
+      font-size: 11px;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 2px 8px;
+      border-radius: 6px;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    /* Image Display */
+    .bot-image-container {
+      margin-top: 12px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border-glass);
+      background: rgba(0, 0, 0, 0.4);
+      position: relative;
+    }
+
+    .bot-image-container img {
+      width: 100%;
+      max-height: 380px;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+
+    .bot-image-container:hover img {
+      transform: scale(1.02);
+    }
+
+    .image-tag {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      background: rgba(10, 15, 30, 0.75);
+      backdrop-filter: blur(8px);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      color: #94a3b8;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Message Actions & Feedback */
+    .feedback-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 6px;
+      font-size: 13px;
+    }
+
+    .feedback-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .feedback-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+    }
+
+    .feedback-btn.active-positive {
+      color: #34d399;
+    }
+
+    .feedback-btn.active-negative {
+      color: #f87171;
+    }
+
+    .refine-input-box {
+      display: none;
+      margin-top: 8px;
+      width: 100%;
+      background: rgba(15, 20, 38, 0.9);
+      border: 1px solid var(--border-glow);
+      border-radius: 10px;
+      padding: 8px 12px;
+      gap: 8px;
+    }
+
+    .refine-input-box.open {
+      display: flex;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .refine-input-box input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-family: inherit;
+      font-size: 13px;
+    }
+
+    .refine-send-btn {
+      background: var(--accent-indigo);
+      border: none;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .refine-send-btn:hover {
+      background: #4f46e5;
+    }
+
+    /* Typing Indicator */
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 12px 16px;
+      background: var(--bubble-bot);
+      border: 1px solid var(--border-glass);
+      border-radius: 16px;
+      border-top-left-radius: 4px;
+      width: fit-content;
+    }
+
+    .typing-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--accent-cyan);
+      border-radius: 50%;
+      animation: bounce 1.4s infinite ease-in-out both;
+    }
+
+    .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+    .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+    @keyframes bounce {
+      0%, 80%, 100% { transform: scale(0); opacity: 0.3; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Input Footer Area */
+    .input-wrapper {
+      padding: 16px 20px;
+      border-top: 1px solid var(--border-glass);
+      background: rgba(12, 16, 32, 0.85);
+      backdrop-filter: blur(16px);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .input-field-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      background: rgba(25, 32, 58, 0.7);
+      border: 1px solid var(--border-glass);
+      border-radius: 12px;
+      padding: 4px 14px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .input-field-container:focus-within {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 14px rgba(56, 189, 248, 0.25);
+    }
+
+    .chat-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-size: 15px;
+      font-family: 'Outfit', sans-serif;
+      padding: 10px 0;
+    }
+
+    .chat-input::placeholder {
+      color: #64748b;
+    }
+
+    .send-action-btn {
+      background: var(--accent-nebula);
+      border: none;
+      color: white;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.25s ease;
+      box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
+    }
+
+    .send-action-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.7);
+    }
+
+    .send-action-btn:active {
+      transform: scale(0.96);
+    }
+
+    .send-icon {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+
+    /* Footer Meta */
+    footer {
+      padding: 12px;
+      font-size: 12px;
+      color: #64748b;
+      position: relative;
+      z-index: 10;
+      text-align: center;
+    }
+
+    @media (max-width: 768px) {
+      header {
+        padding: 12px 16px;
+      }
+      main {
+        width: 96%;
+        height: calc(100vh - 130px);
+        border-radius: 14px;
+      }
+      .chat-messages {
+        padding: 16px;
+      }
+      .bubble-wrapper {
+        max-width: 90%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Canvas for Animated Space Stars -->
+  <canvas id="stars-canvas"></canvas>
+  <div class="ambient-glow-1"></div>
+  <div class="ambient-glow-2"></div>
+
+  <!-- Header -->
+  <header>
+    <div class="logo-container">
+      <div class="logo-badge">🔭</div>
+      <div class="logo-text">
+        <h1>CosmicQ</h1>
+        <span>Astronomy AI & Research Intelligence</span>
+      </div>
+    </div>
+    <div class="status-pill">
+      <div class="status-dot"></div>
+      <span>Mistral Model Active</span>
+    </div>
+  </header>
+
+  <!-- Main Chat Window -->
+  <main>
+    <!-- Suggestion Chips Bar -->
+    <div class="chips-bar">
+      <button class="chip-btn" onclick="sendSuggestion('What is a supernova explosion?')">💥 Supernova</button>
+      <button class="chip-btn" onclick="sendSuggestion('Show me an image of James Webb Space Telescope Deep Field')">🌌 JWST Deep Field</button>
+      <button class="chip-btn" onclick="sendSuggestion('How do supermassive black holes form?')">🕳️ Black Holes</button>
+      <button class="chip-btn" onclick="sendSuggestion('Explain AstroLLaMA research paper in astronomy')">📄 AstroLLaMA Paper</button>
+      <button class="chip-btn" onclick="sendSuggestion('Show picture of Saturn rings')">🪐 Saturn's Rings</button>
+    </div>
+
+    <!-- Chat Messages Scroll Area -->
+    <div class="chat-messages" id="chatContainer">
+      <div class="welcome-hero" id="welcomeHero">
+        <div class="welcome-icon">🪐</div>
+        <h2>Ask Anything Across the Cosmos</h2>
+        <p>Explore deep-space phenomena, astrophysics research papers, planetary science, or request astronomical imagery.</p>
+      </div>
+    </div>
+
+    <!-- Input Footer -->
+    <div class="input-wrapper">
+      <div class="input-field-container">
+        <input 
+          type="text" 
+          id="userInput" 
+          class="chat-input" 
+          placeholder="Ask a question or type 'show image of nebula'..." 
+          autocomplete="off"
+        />
+      </div>
+      <button class="send-action-btn" id="sendBtn" onclick="handleSend()">
+        <svg class="send-icon" viewBox="0 0 24 24">
+          <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+        </svg>
+      </button>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    Powered by Mistral Local AI • RAG Astronomy Knowledge Base • Local FAISS/Embeddings
+  </footer>
+
+  <script>
+    // --- Animated Starfield Background ---
+    const canvas = document.getElementById('stars-canvas');
+    const ctx = canvas.getContext('2d');
+    let stars = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      initStars();
+    }
+
+    function initStars() {
+      stars = [];
+      const count = Math.floor((canvas.width * canvas.height) / 4000);
+      for (let i = 0; i < count; i++) {
+        stars.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          radius: Math.random() * 1.4 + 0.3,
+          alpha: Math.random() * 0.8 + 0.2,
+          speed: Math.random() * 0.015 + 0.005,
+          twinkle: Math.random() * Math.PI * 2
+        });
+      }
+    }
+
+    function drawStars() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      stars.forEach(star => {
+        star.twinkle += star.speed;
+        const currentAlpha = star.alpha + Math.sin(star.twinkle) * 0.25;
+        ctx.fillStyle = `rgba(210, 230, 255, ${Math.max(0.1, Math.min(1, currentAlpha))})`;
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      requestAnimationFrame(drawStars);
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+    drawStars();
+
+    // --- Chat Logic ---
+    const chatContainer = document.getElementById('chatContainer');
+    const userInput = document.getElementById('userInput');
+    const welcomeHero = document.getElementById('welcomeHero');
+
+    userInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        handleSend();
+      }
+    });
+
+    function sendSuggestion(text) {
+      userInput.value = text;
+      handleSend();
+    }
+
+    function removeWelcome() {
+      if (welcomeHero && welcomeHero.parentNode) {
+        welcomeHero.parentNode.removeChild(welcomeHero);
+      }
+    }
+
+    async function handleSend(feedbackMode = false, textOverride = null) {
+      const text = textOverride !== null ? textOverride : userInput.value.trim();
+      if (!text) return;
+
+      removeWelcome();
+
+      if (!feedbackMode) {
+        appendUserMessage(text);
+        userInput.value = '';
+      }
+
+      showTypingIndicator();
+
+      try {
+        const response = await fetch('/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text, feedback_mode: feedbackMode })
+        });
+
+        const data = await response.json();
+        hideTypingIndicator();
+
+        if (data.error) {
+          appendBotMessage(`⚠️ ${data.error}`);
+        } else {
+          appendBotMessage(data.response, data.image);
+        }
+      } catch (err) {
+        hideTypingIndicator();
+        appendBotMessage("⚠️ Could not connect to the CosmicQ server. Please ensure the backend terminal is running.");
+      }
+    }
+
+    function appendUserMessage(text, isClarification = false) {
+      const row = document.createElement('div');
+      row.className = 'message-row user-row';
+      row.innerHTML = `
+        <div class="bubble-wrapper">
+          <div class="bubble user-bubble">
+            ${isClarification ? '<span class="clarification-tag">Clarification</span><br>' : ''}
+            ${escapeHTML(text)}
+          </div>
+        </div>
+        <div class="avatar user-avatar">🚀</div>
+      `;
+      chatContainer.appendChild(row);
+      scrollToBottom();
+    }
+
+    function appendBotMessage(text, imageUrl = null) {
+      const row = document.createElement('div');
+      row.className = 'message-row bot-row';
+
+      let imageHtml = '';
+      if (imageUrl) {
+        imageHtml = `
+          <div class="bot-image-container">
+            <img src="${imageUrl}" alt="Space imagery" loading="lazy" />
+            <div class="image-tag">Deep Space Visual</div>
+          </div>
+        `;
+      }
+
+      row.innerHTML = `
+        <div class="avatar bot-avatar">🌌</div>
+        <div class="bubble-wrapper">
+          <div class="bubble bot-bubble">
+            ${formatBotMarkdown(text)}
+            ${imageHtml}
+            <div class="feedback-toolbar">
+              <button class="feedback-btn" onclick="handleFeedback(this, true)" title="Helpful answer">
+                <span>👍</span> Helpful
+              </button>
+              <button class="feedback-btn" onclick="handleFeedback(this, false)" title="Need clarification">
+                <span>👎</span> Refine
+              </button>
+            </div>
+            <div class="refine-input-box">
+              <input type="text" placeholder="Explain what to refine or clarify..." onkeydown="if(event.key==='Enter'){submitRefinement(this);}" />
+              <button class="refine-send-btn" onclick="submitRefinement(this)">Send</button>
+            </div>
+          </div>
+        </div>
+      `;
+      chatContainer.appendChild(row);
+      scrollToBottom();
+    }
+
+    function showTypingIndicator() {
+      const indicator = document.createElement('div');
+      indicator.className = 'message-row bot-row';
+      indicator.id = 'typingIndicator';
+      indicator.innerHTML = `
+        <div class="avatar bot-avatar">🌌</div>
+        <div class="typing-indicator">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+      `;
+      chatContainer.appendChild(indicator);
+      scrollToBottom();
+    }
+
+    function hideTypingIndicator() {
+      const indicator = document.getElementById('typingIndicator');
+      if (indicator) {
+        indicator.remove();
+      }
+    }
+
+    function handleFeedback(btn, isPositive) {
+      const toolbar = btn.closest('.feedback-toolbar');
+      const refineBox = toolbar.nextElementSibling;
+
+      if (isPositive) {
+        toolbar.innerHTML = `<span style="color: #34d399; font-size: 12px;">✨ Thanks for your feedback!</span>`;
+        refineBox.classList.remove('open');
+      } else {
+        refineBox.classList.add('open');
+        const input = refineBox.querySelector('input');
+        if (input) input.focus();
+      }
+    }
+
+    function submitRefinement(el) {
+      const refineBox = el.closest('.refine-input-box');
+      const input = refineBox.querySelector('input');
+      const val = input.value.trim();
+      if (!val) return;
+
+      refineBox.classList.remove('open');
+      appendUserMessage(val, true);
+      handleSend(true, val);
+    }
+
+    function scrollToBottom() {
+      chatContainer.scrollTo({
+        top: chatContainer.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
+
+    function escapeHTML(str) {
+      const p = document.createElement('p');
+      p.textContent = str;
+      return p.innerHTML;
+    }
+
+    function formatBotMarkdown(str) {
+      if (!str) return '';
+      let formatted = escapeHTML(str);
+      // Bold text
+      formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      // Line breaks
+      formatted = formatted.replace(/\n/g, '<br>');
+      return formatted;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+id,title,abstract,url,year
+arXiv:2405.20389,Designing an Evaluation Framework for LLMs in Astronomy,This paper presents a chatbot that uses Retrieval-Augmented Generation (RAG) to evaluate LLMs in astronomy.,https://arxiv.org/abs/2405.20389,2024
+arXiv:2309.06126,AstroLLaMA: Towards Specialized Foundation Models in Astronomy,AstroLLaMA is a fine-tuned large language model that performs well on astronomy tasks.,https://arxiv.org/abs/2309.06126,2023
+arXiv:2304.05406,Galactic ChitChat: Conversational Systems for Astronomy Literature,This study explores how LLMs can summarize and compare astronomy research papers.,https://arxiv.org/abs/2304.05406,2023
+arXiv:2501.03995,RAG-Check: Evaluating Multimodal Retrieval Augmented Generation,Proposes a testing framework for RAG models applied to scientific literature.,https://arxiv.org/abs/2501.03995,2025
